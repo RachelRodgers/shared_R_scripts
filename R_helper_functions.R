@@ -23,23 +23,17 @@ load_bioc_libraries = function( libName )
 }
 
 
-# This function will try CRAN first, then BioConductor.
+# This function will try CRAN first.
 load_R_libraries = function( libName )
 {
   if ( !require( libName, character.only=TRUE ) )
   {
     install.packages( libName, repos="http://cran.wustl.edu" )
     
-    if (!require(libName, character.only = TRUE))
+    if ( !require( libName, character.only=TRUE ) )
     {
-      print(paste0("Couldn't install ", libName, " from R packages.  Trying BioConductor."))
-      load_bioc_libraries(libName)
+      stop( "Couldn't install ", libName, " from R packages. Please install manually." )
     }
-    
-    #if ( !require( libName, character.only=TRUE ) )
-    #{
-     # stop( "Couldn't install ", libName, " from R packages. Please install manually." )
-    #}
     
   }
 }
