@@ -55,3 +55,16 @@ CheckPhyloseqObject <- function(phyloseqObject, taxRank = "Phylum") {
                                             collapse = ", ")))
   
 }
+
+RemoveMissingTaxa <- function(physeq) {
+  # Removes any taxa that are missing (have a taxa sum of 0) from a physeq object
+  # Error handling
+  # Check that a phyloseq object has been passed in
+  if ((class(physeq)) != "phyloseq") {
+    stop("Please check that you called this function on an object of type 
+         \"phyloseq.\"")
+  }
+  
+  physeq <- prune_taxa(taxa_sums(physeq) > 0, physeq)
+  return(physeq)
+}
