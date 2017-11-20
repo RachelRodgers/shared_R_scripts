@@ -2,11 +2,11 @@
 
 # Source required functions and load required libraries.
 
-source("R_helper_functions.R")
+#source("R_helper_functions.R")
 
 # Helper functions.
 
-check_phyloseqObject <- function(phyloseqObject, taxRank = "Phylum") {
+CheckPhyloseqObject <- function(phyloseqObject, taxRank = "Phylum") {
   # Performs sanity checks on a phyloseq object.
   #
   # Args:
