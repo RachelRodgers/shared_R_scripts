@@ -1,9 +1,20 @@
 #16S_HelperFunctions.R
 
-# Source required functions and load required libraries.
+################################################################################
+# Colorblind-friendly pallets for plotting
+cbPaletteGrey <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-#source("R_helper_functions.R")
+cbbPaletteBlack <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
+# For fills use
+#   scale_fill_manual(values = cbPalletteGrey)
+
+# For line and point colors use
+#   scale_colour_manual(values = cbPalleteGrey)
+
+
+
+################################################################################
 # Helper functions.
 
 CheckPhyloseqObject <- function(phyloseqObject, taxRank = "Phylum") {
