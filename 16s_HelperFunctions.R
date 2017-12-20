@@ -79,3 +79,15 @@ RemoveMissingTaxa <- function(physeq) {
   physeq <- prune_taxa(taxa_sums(physeq) > 0, physeq)
   return(physeq)
 }
+
+
+MakeAbundanceDF <- function(physeq, tax.rank) {
+  # Creates an abundance data frame at a given taxonomic rank for a phyloseq object
+  # for abundance bar plots
+  abundance.df <- physeq %>%
+    tax_glom(taxrank = tax.rank) %>%
+    transform_sample_counts(function(x) {x/sum(x)}) %>%
+    psmelt() %>%
+    filter(Abundance > 0.01)
+  return(abundance.df)
+}
