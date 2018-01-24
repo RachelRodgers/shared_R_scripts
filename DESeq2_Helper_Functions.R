@@ -65,7 +65,7 @@ CreateBiomarkerPlot <- function(biomarkerTable) {
 
 
 
-CreateBiomarkerVolcano <- function(physeq, biomarkerResults) {
+CreateBiomarkerVolcano <- function(physeq, biomarkerResults, alpha = 0.05) {
   # Set up
   taxonomyTable <- data.table(data.frame(as(tax_table(physeq), "matrix")), 
                               keep.rownames = TRUE)
@@ -110,11 +110,11 @@ CreateBiomarkerVolcano <- function(physeq, biomarkerResults) {
 #physeqWTDay21
 #
 # Get biomarker results and significance table from DESeq2
-#biomarkers_WTDay21_NoAbx_Abx <- GetBiomarkers(physeqWTDay21, "Treatment", "No_Antibiotics", "Antibiotics")
+biomarkers_WTDay21_NoAbx_Abx <- GetBiomarkers(physeqWTDay21, "Treatment", "No_Antibiotics", "Antibiotics")
 # Create simple plot
-#biomarkerPlot_WTDay21_NoAbx_Abx <- CreateBiomarkerPlot(biomarkers_WTDay21_NoAbx_Abx$biomarkerTable)
-#biomarkerPlot_WTDay21_NoAbx_Abx
+biomarkerPlot_WTDay21_NoAbx_Abx <- CreateBiomarkerPlot(biomarkers_WTDay21_NoAbx_Abx$biomarkerTable)
+biomarkerPlot_WTDay21_NoAbx_Abx
 # Create volcano plot
-#biomarkerVolcano_WTDay21_NoAbx_Abx <- CreateBiomarkerVolcano(physeqWTDay21,
-#                                                             biomarkers_WTDay21_NoAbx_Abx)
-#biomarkerVolcano_WTDay21_NoAbx_Abx
+biomarkerVolcano_WTDay21_NoAbx_Abx <- CreateBiomarkerVolcano(physeqWTDay21,
+                                                             biomarkers_WTDay21_NoAbx_Abx)
+biomarkerVolcano_WTDay21_NoAbx_Abx
