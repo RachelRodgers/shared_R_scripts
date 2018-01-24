@@ -1,10 +1,16 @@
 # DESeq2_Helper_Functions.R
 
-GetBiomarkersTable <- function(alpha = 0.05, physeq, groupVar, numerator, denominator) {
+
+GetBiomarkersTable <- function(physeq, 
+                               groupVar,
+                               numerator, 
+                               denominator,
+                               alpha = 0.05) { 
+  # Create formula from string variable
+  formula <- as.formula(paste("~", groupVar, sep = " "))
   # Convert physeq object to DESeq Data Set object
-  #   First remove quotes from groupVar
-  grouping <- as.name(groupVar)
-  dds <- phyloseq_to_deseq2(physeq, ~grouping)
+  dds <- phyloseq_to_deseq2(physeq = physeq, design = formula)
+  
   # Run DESeq analysis
   ddsAnalysis <- DESeq(dds, test = "Wald", fitType = "local", betaPrior = FALSE)
   # Extract Results
@@ -26,3 +32,5 @@ GetBiomarkersTable <- function(alpha = 0.05, physeq, groupVar, numerator, denomi
                                           levels = names(maxFC))
   return(ddsSignificantResults)
 }
+
+
