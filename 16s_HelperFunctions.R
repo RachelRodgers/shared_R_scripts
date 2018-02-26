@@ -17,6 +17,8 @@ cbbPaletteBlack <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#00
 ################################################################################
 # Helper functions.
 
+## Functions for basic manipulation of phyloseq object. ##
+
 CheckPhyloseqObject <- function(phyloseqObject, taxRank = "Phylum") {
   # Performs sanity checks on a phyloseq object.
   #
@@ -81,17 +83,9 @@ RemoveMissingTaxa <- function(physeq) {
 }
 
 
-MakeAbundanceDF <- function(physeq, tax.rank, abundance.filter = 0.01) {
-  # Creates an abundance data frame at a given taxonomic rank for a phyloseq object
-  # for abundance bar plots
-  abundance.df <- physeq %>%
-    tax_glom(taxrank = tax.rank) %>%
-    transform_sample_counts(function(x) {x/sum(x)}) %>%
-    psmelt() %>%
-    filter(Abundance > abundance.filter)
-  #return(abundance.df)
-}
+## Functions for generating data frames from phyloseq objects ##
 
+# For pre-processing based on read distributions.
 GenerateReadSummary <- function(physeq) {
   # Creates a data frames that summarize the total number of reads per RSVs and 
   # per sample (readsPerType). Creates a data frame that just holds the reads
@@ -126,4 +120,16 @@ GenerateReadSummary <- function(physeq) {
   readSummery <- list("readsPerType" = readsPerType,
                       "readsPerSample" = readsPerSample,
                       "readDistributionSummary" = readDistributionSummary)
+}
+
+# For community composition plotting.
+MakeAbundanceDF <- function(physeq, tax.rank, abundance.filter = 0.01) {
+  # Creates an abundance data frame at a given taxonomic rank for a phyloseq object
+  # for abundance bar plots
+  abundance.df <- physeq %>%
+    tax_glom(taxrank = tax.rank) %>%
+    transform_sample_counts(function(x) {x/sum(x)}) %>%
+    psmelt() %>%
+    filter(Abundance > abundance.filter)
+  #return(abundance.df)
 }

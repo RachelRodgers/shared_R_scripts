@@ -37,7 +37,7 @@ GetBiomarkers <- function(physeq,
                                           levels = names(maxFC))
   biomarkerResults <- list("results" = ddsResults, "biomarkerTable" = ddsSignificantResults)
   #return(ddsSignificantResults)
-  biomarkerResults
+  #biomarkerResults
 }
 
 
