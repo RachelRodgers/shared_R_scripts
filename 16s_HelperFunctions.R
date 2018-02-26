@@ -77,7 +77,7 @@ RemoveMissingTaxa <- function(physeq) {
   }
   
   physeq <- prune_taxa(taxa_sums(physeq) > 0, physeq)
-  return(physeq)
+  #return(physeq)
 }
 
 
@@ -89,5 +89,41 @@ MakeAbundanceDF <- function(physeq, tax.rank, abundance.filter = 0.01) {
     transform_sample_counts(function(x) {x/sum(x)}) %>%
     psmelt() %>%
     filter(Abundance > abundance.filter)
-  return(abundance.df)
+  #return(abundance.df)
+}
+
+GenerateReadSummary <- function(physeq) {
+  # Creates a data frames that summarize the total number of reads per RSVs and 
+  # per sample (readsPerType). Creates a data frame that just holds the reads
+  # per sample (readsPerSample). Creates a summary output of the read 
+  # distribution of the samples.
+  #
+  # Args:
+  #   phyloseqObject: An object of class phyloseq.
+  #
+  # Returns:
+  #   List holding readsPerType, readsPerSample, and readDistributionSummary
+  
+  # readsPerType contains RSVs and Sample names for row names, an nreads column
+  # for the total number of reads, a sorted column used as an identifier, and
+  # a type column designating if the row is an RSV or a Sample.
+  # Total reads per RSV:
+  readsPerType <- data.frame(nreads = sort(taxa_sums(physeq),
+                                           decreasing = TRUE),
+                             sorted = 1:ntaxa(physeq),
+                             type = "RSVs")
+  # Add total reads per sample:
+  readsPerType <- rbind(readsPerType,
+                        data.frame(nreads = sort(sample_sums(physeq),
+                                                 decreasing = TRUE),
+                                   sorted = 1:nsamples(physeq),
+                                   type = "Samples"))
+  # Create a data frame with just the reads per sample:
+  readsPerSample <- data.frame(sum = sample_sums(physeq))
+  # Create read distribution summary:
+  readDistributionSummary <- summary(readsPerSample)
+  
+  readSummery <- list("readsPerType" = readsPerType,
+                      "readsPerSample" = readsPerSample,
+                      "readDistributionSummary" = readDistributionSummary)
 }
