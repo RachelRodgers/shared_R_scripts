@@ -1,7 +1,7 @@
 #16S_HelperFunctions.R
 
 ################################################################################
-# Colorblind-friendly pallets for plotting
+# Colorblind-friendly pallets for plotting.
 cbPaletteGrey <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 cbbPaletteBlack <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
@@ -132,4 +132,59 @@ MakeAbundanceDF <- function(physeq, tax.rank, abundance.filter = 0.01) {
     psmelt() %>%
     filter(Abundance > abundance.filter)
   #return(abundance.df)
+}
+
+TaxRankPrevalence <- function(physeq, taxRank = "Phylum") {
+  # Create a named vector where each element name is an OTU sequeunce, and each value
+  #   is the number of sequences in which that OTU is present (max value is the total
+  #   number of sequences).
+  prevalence_vector <- apply(X = otu_table(physeq),
+                             MARGIN = ifelse(taxa_are_rows(physeq), yes = 1, no =2),
+                             FUN = function(x) {sum(x > 0)})
+  # Generate a prevalence dataframe that also adds a TotalAbundance column (the total
+  #   number of reads for that OTU across all samples) and the taxonomy information 
+  #   for each OTU.
+  prevalence_df <- data.frame(Prevalence = prevalence_vector,
+                              TotalAbundance = taxa_sums(physeq),
+                              tax_table(physeq))
+  # Create a new data frame that displays, for a given taxonomic rank, the average
+  #   number of samples in which that taxon is present, and the total number of samples
+  #   in which that taxon is present.
+  taxaPrevalence_table <- plyr::ddply(prevalence_df,
+                                      "Phylum",
+                                      function(df1) {
+                                        cbind("Avg_Prevalence" = mean(df1$Prevalence), 
+                                              "Total_Prevalence" = sum(df1$Prevalence))
+                                      })
+  taxRankPrevalence <- list("prevalence_df" = prevalence_df,
+                            "prevalence_table" = taxaPrevalence_table)
+}
+
+## Functions for creating of plotting data frames. ##
+
+build_rare_curves <- function(physeq) {
+  # Make a data frame from the OTU table
+  otu_table <- data.frame(otu_table(physeq))
+  # Change OTUs from row names to a column
+  otu_table <- rownames_to_column(otu_table, var = "OTU")
+  
+  # Vectors to hold for loop output
+  sample_vector <- vector(mode = "numeric")
+  nonunique_taxa <- vector(mode = "numeric")
+  unique_taxa <- vector(mode = "numeric")
+  
+  # Fill vectors
+  for (i in 2:ncol(otu_table)) {
+    current_sample_index <- i - 1
+    sample_vector[current_sample_index] <- current_sample_index
+    
+    filtered_df <- filter(otu_table, otu_table[, i] > 0)
+    nonunique_taxa <- c(nonunique_taxa, filtered_df$OTU)
+    unique_taxa[current_sample_index] <- length(unique(nonunique_taxa))
+  }
+  
+  # Bind vectors into a data frame (this is the return value)
+  rare_curve_df <- data.frame(cbind("Sample" = sample_vector,
+                                    "UniqueTaxa" = unique_taxa))
+  
 }
