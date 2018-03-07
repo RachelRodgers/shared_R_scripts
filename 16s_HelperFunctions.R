@@ -188,3 +188,31 @@ build_rare_curves <- function(physeq) {
                                     "UniqueTaxa" = unique_taxa))
   
 }
+
+
+# Calculate prevalence of taxa at a given taxonomic rank for low prevalence taxon filtering. #
+TaxRankPrevalence <- function(physeq, taxRank = "Phylum") {
+  # Create a named vector where each element name is an OTU sequeunce, and each value
+  #   is the number of sequences in which that OTU is present (max value is the total
+  #   number of sequences).
+  prevalence_vector <- apply(X = otu_table(physeq),
+                             MARGIN = ifelse(taxa_are_rows(physeq), yes = 1, no =2),
+                             FUN = function(x) {sum(x > 0)})
+  # Generate a prevalence dataframe that also adds a TotalAbundance column (the total
+  #   number of reads for that OTU across all samples) and the taxonomy information 
+  #   for each OTU.
+  prevalence_df <- data.frame(Prevalence = prevalence_vector,
+                              TotalAbundance = taxa_sums(physeq),
+                              tax_table(physeq))
+  # Create a new data frame that displays, for a given taxonomic rank, the average
+  #   number of samples in which that taxon is present, and the total number of samples
+  #   in which that taxon is present.
+  taxaPrevalence_table <- plyr::ddply(prevalence_df,
+                                      "Phylum",
+                                      function(df1) {
+                                        cbind("Avg_Prevalence" = mean(df1$Prevalence), 
+                                              "Total_Prevalence" = sum(df1$Prevalence))
+                                      })
+  taxRankPrevalence <- list("prevalence_df" = prevalence_df,
+                            "prevalence_table" = taxaPrevalence_table)
+}
