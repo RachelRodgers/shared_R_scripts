@@ -162,31 +162,35 @@ TaxRankPrevalence <- function(physeq, taxRank = "Phylum") {
 
 ## Functions for creating of plotting data frames. ##
 
-buildRareCurves <- function(physeq) {
-  # Make a data frame from the OTU table
-  otu_table <- data.frame(otu_table(physeq))
-  # Change OTUs from row names to a column
-  otu_table <- rownames_to_column(otu_table, var = "OTU")
+buildRareCurves <- function(physeq, taxa_are_rows) {
   
-  # Vectors to hold for loop output
-  sample_vector <- vector(mode = "numeric")
-  nonunique_taxa <- vector(mode = "numeric")
-  unique_taxa <- vector(mode = "numeric")
+  otuTable <- data.frame(otu_table(physeq))
   
-  # Fill vectors
-  for (i in 2:ncol(otu_table)) {
-    current_sample_index <- i - 1
-    sample_vector[current_sample_index] <- current_sample_index
+  # Transpose otuTable if taxa_are_rows(physeq) evals to FALSE
+  if (!taxa_are_rows(physeq)) {
+    otuTable <- data.frame(t(otuTable))
+  }
+  # taxa/OTUs are the row names
+  # Change OTUs from row names to its own column called OTU
+  otuTable <- rownames_to_column(otuTable, var = "OTU")
+  
+  # Vectors to hold loop output
+  sampleVector <- vector(mode = "numeric")
+  nonuniqueTaxa <- vector(mode = "numeric")
+  uniqueTaxa <- vector(mode = "numeric")
+  
+  # Fill the vectors
+  for (j in 2:ncol(otuTable)) {
+    currentSampleIndex <- j - 1 # since j starts at 2, not 1
+    sampleVector[currentSampleIndex] <- currentSampleIndex
     
-    filtered_df <- filter(otu_table, otu_table[, i] > 0)
-    nonunique_taxa <- c(nonunique_taxa, filtered_df$OTU)
-    unique_taxa[current_sample_index] <- length(unique(nonunique_taxa))
+    filteredTable <- filter(otuTable, otuTable[, j] > 0) # Remove missing OTUs
+    nonuniqueTaxa <- c(nonuniqueTaxa, filteredTable$OTU) # Put remaining OTUs in vector
+    uniqueTaxa[currentSampleIndex] <- length(unique(nonuniqueTaxa)) # Count the unique taxa
   }
   
-  # Bind vectors into a data frame (this is the return value)
-  rare_curve_df <- data.frame(cbind("Sample" = sample_vector,
-                                    "UniqueTaxa" = unique_taxa))
-  
+  rareCurveDF <- data.frame(cbind("Sample" = sampleVector,
+                                  "UniqueTaxa" = uniqueTaxa))
 }
 
 
