@@ -162,7 +162,7 @@ TaxRankPrevalence <- function(physeq, taxRank = "Phylum") {
 
 ## Functions for creating of plotting data frames. ##
 
-buildRareCurves <- function(physeq, taxa_are_rows) {
+buildRareCurves <- function(physeq) {
   
   otuTable <- data.frame(otu_table(physeq))
   
