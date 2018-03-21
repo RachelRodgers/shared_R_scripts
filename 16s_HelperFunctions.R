@@ -4,7 +4,7 @@
 # Colorblind-friendly pallets for plotting.
 cbPaletteGrey <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-cbbPaletteBlack <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+cbPaletteBlack <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 # For fills use
 #   scale_fill_manual(values = cbPalletteGrey)
@@ -123,14 +123,14 @@ GenerateReadSummary <- function(physeq) {
 }
 
 # For community composition plotting.
-MakeAbundanceDF <- function(physeq, tax.rank, abundance.filter = 0.01) {
+MakeAbundanceDF <- function(physeq, taxRank, abundanceFilter = 0.01) {
   # Creates an abundance data frame at a given taxonomic rank for a phyloseq object
   # for abundance bar plots
   abundance.df <- physeq %>%
-    tax_glom(taxrank = tax.rank) %>%
+    tax_glom(taxrank = taxRank) %>%
     transform_sample_counts(function(x) {x/sum(x)}) %>%
     psmelt() %>%
-    filter(Abundance > abundance.filter)
+    filter(Abundance > abundanceFilter)
   #return(abundance.df)
 }
 
@@ -162,7 +162,7 @@ TaxRankPrevalence <- function(physeq, taxRank = "Phylum") {
 
 ## Functions for creating of plotting data frames. ##
 
-build_rare_curves <- function(physeq) {
+buildRareCurves <- function(physeq) {
   # Make a data frame from the OTU table
   otu_table <- data.frame(otu_table(physeq))
   # Change OTUs from row names to a column
