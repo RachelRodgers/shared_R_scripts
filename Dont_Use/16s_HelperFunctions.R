@@ -162,36 +162,36 @@ TaxRankPrevalence <- function(physeq, taxRank = "Phylum") {
 
 ## Functions for creating of plotting data frames. ##
 
-buildRareCurves <- function(physeq) {
+#buildRareCurves <- function(physeq) {
   
-  otuTable <- data.frame(otu_table(physeq))
+#  otuTable <- data.frame(otu_table(physeq))
   
   # Transpose otuTable if taxa_are_rows(physeq) evals to FALSE
-  if (!taxa_are_rows(physeq)) {
-    otuTable <- data.frame(t(otuTable))
-  }
+#  if (!taxa_are_rows(physeq)) {
+#    otuTable <- data.frame(t(otuTable))
+#  }
   # taxa/OTUs are the row names
   # Change OTUs from row names to its own column called OTU
-  otuTable <- rownames_to_column(otuTable, var = "OTU")
+#  otuTable <- rownames_to_column(otuTable, var = "OTU")
   
   # Vectors to hold loop output
-  sampleVector <- vector(mode = "numeric")
-  nonuniqueTaxa <- vector(mode = "numeric")
-  uniqueTaxa <- vector(mode = "numeric")
+#  sampleVector <- vector(mode = "numeric")
+#  nonuniqueTaxa <- vector(mode = "numeric")
+#  uniqueTaxa <- vector(mode = "numeric")
   
   # Fill the vectors
-  for (j in 2:ncol(otuTable)) {
-    currentSampleIndex <- j - 1 # since j starts at 2, not 1
-    sampleVector[currentSampleIndex] <- currentSampleIndex
+#  for (j in 2:ncol(otuTable)) {
+#    currentSampleIndex <- j - 1 # since j starts at 2, not 1
+#    sampleVector[currentSampleIndex] <- currentSampleIndex
     
-    filteredTable <- filter(otuTable, otuTable[, j] > 0) # Remove missing OTUs
-    nonuniqueTaxa <- c(nonuniqueTaxa, filteredTable$OTU) # Put remaining OTUs in vector
-    uniqueTaxa[currentSampleIndex] <- length(unique(nonuniqueTaxa)) # Count the unique taxa
-  }
+#    filteredTable <- filter(otuTable, otuTable[, j] > 0) # Remove missing OTUs
+#    nonuniqueTaxa <- c(nonuniqueTaxa, filteredTable$OTU) # Put remaining OTUs in vector
+#    uniqueTaxa[currentSampleIndex] <- length(unique(nonuniqueTaxa)) # Count the unique taxa
+#  }
   
-  rareCurveDF <- data.frame(cbind("Sample" = sampleVector,
-                                  "UniqueTaxa" = uniqueTaxa))
-}
+#  rareCurveDF <- data.frame(cbind("Sample" = sampleVector,
+#                                  "UniqueTaxa" = uniqueTaxa))
+#}
 
 
 # Calculate prevalence of taxa at a given taxonomic rank for low prevalence taxon filtering. #
