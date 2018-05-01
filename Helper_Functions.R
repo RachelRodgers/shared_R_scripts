@@ -27,7 +27,7 @@ MakeBoxPlot <- function(df,
   basePlot <- ggplot(data = df,
                      aes_string(x = xVar,
                                 y = yVar)) +
-    geom_boxplot() +
+    geom_boxplot(outlier.shape = NA) +
     geom_jitter(width = 0.2) +
     ylab(label_y) +
     xlab(label_x) +
