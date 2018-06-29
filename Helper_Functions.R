@@ -51,7 +51,7 @@ MakeBoxPlot <- function(df,
 
 MakeOrdinationPlot <- function(physeqObj, 
                                ordObj, 
-                               colorValues = NULL,
+                               colorValues,
                                shapeValues = NULL,
                                labelColumn = NA,
                                labelSize = 2.5,
