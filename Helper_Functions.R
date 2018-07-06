@@ -272,6 +272,7 @@ MakeAbundanceDF <- function(physeq, taxRank, abundanceFilter = 0.01) {
 ################################################################################
 
 TaxRankPrevalence <- function(physeq, taxRank = "Phylum") {
+  # Calculate prevalence of taxa at a given taxonomic rank for low prevalence taxon filtering.
   # Create a named vector where each element name is an OTU sequeunce, and each value
   #   is the number of sequences in which that OTU is present (max value is the total
   #   number of sequences).
@@ -299,44 +300,19 @@ TaxRankPrevalence <- function(physeq, taxRank = "Phylum") {
 
 ################################################################################
 
-# Calculate prevalence of taxa at a given taxonomic rank for low prevalence taxon filtering.
-TaxRankPrevalence <- function(physeq, taxRank = "Phylum") {
-  # Create a named vector where each element name is an OTU sequeunce, and each value
-  #   is the number of sequences in which that OTU is present (max value is the total
-  #   number of sequences).
-  prevalence_vector <- apply(X = otu_table(physeq),
-                             MARGIN = ifelse(taxa_are_rows(physeq), yes = 1, no =2),
-                             FUN = function(x) {sum(x > 0)})
-  # Generate a prevalence dataframe that also adds a TotalAbundance column (the total
-  #   number of reads for that OTU across all samples) and the taxonomy information 
-  #   for each OTU.
-  prevalence_df <- data.frame(Prevalence = prevalence_vector,
-                              TotalAbundance = taxa_sums(physeq),
-                              tax_table(physeq))
-  # Create a new data frame that displays, for a given taxonomic rank, the average
-  #   number of samples in which that taxon is present, and the total number of samples
-  #   in which that taxon is present.
-  taxaPrevalence_table <- plyr::ddply(prevalence_df,
-                                      "Phylum",
-                                      function(df1) {
-                                        cbind("Avg_Prevalence" = mean(df1$Prevalence), 
-                                              "Total_Prevalence" = sum(df1$Prevalence))
-                                      })
-  taxRankPrevalence <- list("prevalence_df" = prevalence_df,
-                            "prevalence_table" = taxaPrevalence_table)
-}
+
 
 ################################################################################
+# DESeq2 - specific functions:
 
-# Create the significance table used for plotting
 GetBiomarkers <- function(physeq, 
                           groupVar,
                           numerator, 
                           denominator,
                           alpha = 0.05) { 
-  
+  # Create the DESeq significance table used for plotting.
   # Returns a list of two objects - the DESeq2 results and the Significance Table (sigTable)
-  # Each component can be accessed with dollar sign notation
+  # Each component can be accessed with dollar sign ($) notation
   
   # Create formula from string variable
   formula <- as.formula(paste("~", groupVar, sep = " "))
@@ -367,7 +343,7 @@ GetBiomarkers <- function(physeq,
   #biomarkerResults
 }
 
-################################################################################
+# Horizontal Biomarker Plot
 
 CreateBiomarkerPlot <- function(biomarkerTable) {
   biomarkerPlot <- ggplot(data.frame(biomarkerTable),
@@ -385,7 +361,7 @@ CreateBiomarkerPlot <- function(biomarkerTable) {
   return(biomarkerPlot)
 }
 
-################################################################################
+# Volcano Biomarker Plot
 
 CreateBiomarkerVolcano <- function(physeq, biomarkerResults, alpha = 0.05) {
   # Set up
@@ -424,19 +400,24 @@ CreateBiomarkerVolcano <- function(physeq, biomarkerResults, alpha = 0.05) {
 }
 
 ## TEST ##
-# how to use
+# how to use the DESeq2 specific functions
 #
-# Physeq object
-#physeqWTDay21
+# Physeq object: physeqWTDay21
 #
-# Get biomarker results and significance table from DESeq2
-#biomarkers_WTDay21_NoAbx_Abx <- GetBiomarkers(physeqWTDay21, "Treatment", "No_Antibiotics", "Antibiotics")
-# Create simple plot
-#biomarkerPlot_WTDay21_NoAbx_Abx <- CreateBiomarkerPlot(biomarkers_WTDay21_NoAbx_Abx$biomarkerTable)
-#biomarkerPlot_WTDay21_NoAbx_Abx
+# Get biomarker results and significance table from DESeq2 comparing the
+#   Treatment groups with No_Antibiotics as the numerator (top_), Antibiotics 
+#   as the denominator (bottom) of the Horizontal Biomarkers plot:
+# 
+# biomarkers_WTDay21_NoAbx_Abx <- GetBiomarkers(physeqWTDay21, 
+#                                              "Treatment", 
+#                                              "No_Antibiotics", "Antibiotics")
+# Create Horizontal plot
+# biomarkerPlot_WTDay21_NoAbx_Abx <- CreateBiomarkerPlot(biomarkers_WTDay21_NoAbx_Abx$biomarkerTable)
+# biomarkerPlot_WTDay21_NoAbx_Abx
+# 
 # Create volcano plot
-#biomarkerVolcano_WTDay21_NoAbx_Abx <- CreateBiomarkerVolcano(physeqWTDay21,
+# biomarkerVolcano_WTDay21_NoAbx_Abx <- CreateBiomarkerVolcano(physeqWTDay21,
 #                                                             biomarkers_WTDay21_NoAbx_Abx)
-#biomarkerVolcano_WTDay21_NoAbx_Abx
+# biomarkerVolcano_WTDay21_NoAbx_Abx
 
 ################################################################################
