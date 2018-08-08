@@ -259,11 +259,14 @@ GenerateReadSummary <- function(physeq) {
 ################################################################################
 
 # For community composition plotting.
-MakeAbundanceDF <- function(physeq, taxRank, abundanceFilter = 0.01) {
+MakeAbundanceDF <- function(physeq, 
+                            taxRank, 
+                            abundanceFilter = 0.01,
+                            pruneMissing = FALSE) {
   # Creates an abundance data frame at a given taxonomic rank for a phyloseq object
   # for abundance bar plots
   abundance.df <- physeq %>%
-    tax_glom(taxrank = taxRank) %>%
+    tax_glom(taxrank = taxRank, NArm = pruneMissing) %>%
     transform_sample_counts(function(x) {x/sum(x)}) %>%
     psmelt() %>%
     filter(Abundance > abundanceFilter)
