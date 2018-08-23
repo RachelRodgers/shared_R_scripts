@@ -39,7 +39,7 @@ MakeBoxPlot <- function(df,
     return(basePlot)
   } else {
     basePlot +
-      stat_compare_means(method = statMethod, label.x.npc = 0.5, size = 8)
+      stat_compare_means(method = statMethod, label.x.npc = 0.5)
   }
 }
 
