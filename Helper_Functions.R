@@ -20,9 +20,7 @@ MakeBoxPlot <- function(df,
                         yVar, 
                         label_y = NULL, 
                         label_x = NULL, 
-                        statMethod = NULL, 
-                        myTitle = NULL, 
-                        mySubtitle = NULL) {
+                        statMethod = NULL) {
   # Generate the base plot w/o stat_compare_means
   basePlot <- ggplot(data = df,
                      aes_string(x = xVar,
@@ -31,19 +29,17 @@ MakeBoxPlot <- function(df,
     geom_jitter(width = 0.2) +
     ylab(label_y) +
     xlab(label_x) +
-    ggtitle(myTitle,
-            subtitle = mySubtitle) +
     theme_pubr() +
     theme(axis.title.x = element_blank(),
-          axis.text.x = element_text(angle = 45, hjust = 1),
-          plot.title = element_text(hjust = 0.5),
-          plot.subtitle = element_text(hjust = 0.5))
+          axis.title.y = element_text(size = 20),
+          axis.text.x = element_text(angle = 45, hjust = 1, size = 18),
+          axis.text.y = element_text(size = 18))
   # Do we need to add stat_compare_means?
   if (is.null(statMethod)) {
     return(basePlot)
   } else {
     basePlot +
-      stat_compare_means(method = statMethod, label.x.npc = 0.5)
+      stat_compare_means(method = statMethod, label.x.npc = 0.5, size = 8)
   }
 }
 
