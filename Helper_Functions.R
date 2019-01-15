@@ -48,6 +48,7 @@ MakeBoxPlot <- function(df,
 MakeOrdinationPlot <- function(physeqObj, 
                                ordObj, 
                                colorValues,
+                               pointSize = 3.5,
                                shapeValues = NULL,
                                labelColumn = NA,
                                labelSize = 2.5,
@@ -64,7 +65,7 @@ MakeOrdinationPlot <- function(physeqObj,
                   color = colorVar,
                   axes = axesVec) +
     theme_bw() +
-    geom_point(size = 2) +
+    geom_point(size = pointSize) +
     scale_color_manual(values = colorValues) +
     scale_shape_manual(values = shapeValues) +
     ggtitle(myTitle,
