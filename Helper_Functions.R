@@ -30,8 +30,7 @@ MakeBoxPlot <- function(df,
     ylab(label_y) +
     xlab(label_x) +
     theme_pubr() +
-    theme(axis.title.x = element_blank(),
-          axis.title.y = element_text(size = 20),
+    theme(axis.title.y = element_text(size = 20),
           axis.text.x = element_text(angle = 45, hjust = 1, size = 18),
           axis.text.y = element_text(size = 18))
   # Do we need to add stat_compare_means?
