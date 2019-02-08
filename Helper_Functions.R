@@ -106,46 +106,44 @@ PlotPhylaPrevalence <- function(prevDF, physeqObj, myTitle = NULL,
 }
 ################################################################################
 
-PlotCommunityComposition <- function(df, taxRank, myTitle = NULL, 
+PlotCommunityComposition <- function(abdDF, taxRank, myTitle = NULL, 
                                      mySubtitle = NULL, labelVec = NULL,
-                                     facetFormula = NULL, legPos = "right") {
+                                     facetFormula = NULL,
+                                     facetCol = NULL, facetRow = NULL , 
+                                     legPos = "right") {
   basePlot <- ggplot(df,
                      aes_string(x = "Sample",
                                 y = "Abundance",
                                 fill = taxRank)) +
-    geom_bar(stat = "identity", width = 0.85) +
+    geom_bar(stat = "identity", width = 1, color = "grey14") +
     ggtitle(myTitle,
             subtitle = mySubtitle) +
     theme(axis.title.x = element_blank(),
           axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
-          plot.title = element_text(hjust = 0.5),
-          plot.subtitle = element_text(hjust = 0.5),
-          legend.position = legPos) +
-    scale_x_discrete(labels = labelVec)
+  plot.title = element_text(hjust = 0.5),
+  plot.subtitle = element_text(hjust = 0.5),
+  legend.position = legPos) +
+  scale_x_discrete(labels = labelVec)
+
   # Do we need to facet_wrap?
   if(is.null(facetFormula) == TRUE) {
     return(basePlot)
   } else {
     formula <- as.formula(facetFormula)
-    basePlot + facet_wrap(formula, scales = "free", nrow = 2) 
+    basePlot + facet_wrap(formula, scales = "free", 
+                          nrow = facetRow, ncol = facetCol) 
   }
-} 
+}
 
 ################################################################################
 
 # Function to run adonis test on a physeq object and a variable from metadata 
-DoAdonis <- function(physeq, category, distance = "bray") {
-  bdist <- phyloseq::distance(physeq, distance)
-  col <- as(sample_data(physeq), "data.frame")[, category]
+RunAdonis <- function(physeqObj, category, distance) {
+  bdist <- phyloseq::distance(physeqObj, distance)
+  col <- as(sample_data(physeqObj), "data.frame")[, category]
   # Adonis test
   adonis.bdist <- adonis(bdist ~ col)
-  #print("Adonis results:")
-  #print(adonis.bdist)
-  # Homogeneity of dispersion test
-  #betatax = betadisper(bdist,col)
-  #p = permutest(betatax)
-  #print("Betadisper results:")
-  #print(p$tab)
+  return(adonis.bdist)
 }
 
 ################################################################################
@@ -297,10 +295,6 @@ TaxRankPrevalence <- function(physeq, taxRank = "Phylum") {
   taxRankPrevalence <- list("prevalence_df" = prevalence_df,
                             "prevalence_table" = taxaPrevalence_table)
 }
-
-################################################################################
-
-
 
 ################################################################################
 # DESeq2 - specific functions:
