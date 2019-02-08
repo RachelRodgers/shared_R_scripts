@@ -139,13 +139,13 @@ DoAdonis <- function(physeq, category, distance = "bray") {
   col <- as(sample_data(physeq), "data.frame")[, category]
   # Adonis test
   adonis.bdist <- adonis(bdist ~ col)
-  print("Adonis results:")
-  print(adonis.bdist)
+  #print("Adonis results:")
+  #print(adonis.bdist)
   # Homogeneity of dispersion test
-  betatax = betadisper(bdist,col)
-  p = permutest(betatax)
-  print("Betadisper results:")
-  print(p$tab)
+  #betatax = betadisper(bdist,col)
+  #p = permutest(betatax)
+  #print("Betadisper results:")
+  #print(p$tab)
 }
 
 ################################################################################
