@@ -1,6 +1,6 @@
 # Helper_Functions.Rmd
 
-################################################################################
+#----- Colorblind-Friendly Pallets -----#
 
 # Colorblind-friendly pallets for plotting.
 cbPaletteGrey <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
@@ -13,37 +13,7 @@ cbPaletteBlack <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#007
 # For line and point colors use
 #   scale_colour_manual(values = cbPalleteGrey)
 
-################################################################################
-
-MakeBoxPlot <- function(df, 
-                        xVar, 
-                        yVar, 
-                        label_y = NULL, 
-                        label_x = NULL, 
-                        statMethod = NULL) {
-  # Generate the base plot w/o stat_compare_means
-  basePlot <- ggplot(data = df,
-                     aes_string(x = xVar,
-                                y = yVar)) +
-    geom_boxplot(outlier.shape = NA) +
-    geom_jitter(width = 0.2) +
-    ylab(label_y) +
-    xlab(label_x) +
-    theme_pubr() +
-    theme(axis.title.y = element_text(size = 20),
-          axis.title.x = element_text(size = 20),
-          axis.text.x = element_text(angle = 45, hjust = 1, size = 18),
-          axis.text.y = element_text(size = 18))
-  # Do we need to add stat_compare_means?
-  if (is.null(statMethod)) {
-    return(basePlot)
-  } else {
-    basePlot +
-      stat_compare_means(method = statMethod, label.x.npc = 0.5)
-  }
-}
-
-################################################################################
+#---------------------------------#
 
 MakeOrdinationPlot <- function(physeqObj, 
                                ordObj, 
@@ -77,7 +47,7 @@ MakeOrdinationPlot <- function(physeqObj,
                     color = labelColor)
 }
 
-################################################################################
+#---------------------------------#
 
 PlotPhylaPrevalence <- function(prevDF, physeqObj, myTitle = NULL, 
                                 mySubtitle = NULL,intercept_y = 0.05, 
@@ -104,7 +74,7 @@ PlotPhylaPrevalence <- function(prevDF, physeqObj, myTitle = NULL,
           plot.subtitle = element_text(hjust = 0.5),
           legend.position = legendPos)
 }
-################################################################################
+#---------------------------------#
 
 PlotCommunityComposition <- function(abdDF, taxRank, myTitle = NULL, 
                                      mySubtitle = NULL, labelVec = NULL,
@@ -135,7 +105,7 @@ PlotCommunityComposition <- function(abdDF, taxRank, myTitle = NULL,
   }
 }
 
-################################################################################
+#---------------------------------#
 
 # Function to run adonis test on a physeq object and a variable from metadata 
 RunAdonis <- function(physeqObj, category, distance) {
@@ -146,7 +116,7 @@ RunAdonis <- function(physeqObj, category, distance) {
   return(adonis.bdist)
 }
 
-################################################################################
+#---------------------------------#
 
 CheckPhyloseqObject <- function(phyloseqObject, taxRank = "Phylum") {
   # Performs sanity checks on a phyloseq object.
@@ -198,7 +168,7 @@ CheckPhyloseqObject <- function(phyloseqObject, taxRank = "Phylum") {
   
 }
 
-################################################################################
+#---------------------------------#
 
 RemoveMissingTaxa <- function(physeq) {
   # Removes any taxa that are missing (have a taxa sum of 0) from a physeq object
@@ -212,7 +182,7 @@ RemoveMissingTaxa <- function(physeq) {
   physeq <- prune_taxa(taxa_sums(physeq) > 0, physeq)
 }
 
-################################################################################
+#---------------------------------#
 
 # For pre-processing based on read distributions.
 GenerateReadSummary <- function(physeq) {
@@ -251,7 +221,7 @@ GenerateReadSummary <- function(physeq) {
                       "readDistributionSummary" = readDistributionSummary)
 }
 
-################################################################################
+#---------------------------------#
 
 # For community composition plotting.
 MakeAbundanceDF <- function(physeq, 
@@ -267,7 +237,7 @@ MakeAbundanceDF <- function(physeq,
     filter(Abundance > abundanceFilter)
 }
 
-################################################################################
+#---------------------------------#
 
 TaxRankPrevalence <- function(physeq, taxRank = "Phylum") {
   # Calculate prevalence of taxa at a given taxonomic rank for low prevalence taxon filtering.
@@ -296,9 +266,8 @@ TaxRankPrevalence <- function(physeq, taxRank = "Phylum") {
                             "prevalence_table" = taxaPrevalence_table)
 }
 
-################################################################################
-# DESeq2 - specific functions:
-
+#---------------------------------#
+# DESeq2 - specific functions (old):
 GetBiomarkers <- function(physeq, 
                           groupVar,
                           numerator, 
@@ -414,4 +383,96 @@ CreateBiomarkerVolcano <- function(physeq, biomarkerResults, alpha = 0.05) {
 #                                                             biomarkers_WTDay21_NoAbx_Abx)
 # biomarkerVolcano_WTDay21_NoAbx_Abx
 
-################################################################################
+#---------------------------------#
+
+# Functions to quickly make interactive volcano plots:
+
+GenerateDESeqResults <- function(physeq, variable, numerator, denominator) {
+  # Returns DESeq Results as Formal Class "DESeqResults"
+  # Create formula from string variable
+  formula <- as.formula(paste("~", variable, sep = " "))
+  # Convert to deseq data set object
+  dds <- phyloseq_to_deseq2(physeq, design = formula)
+  # Run analysis
+  ddsAnalysis <- DESeq(dds, test = "Wald", fitType = "local", betaPrior = FALSE)
+  # Extract and format results
+  ddsResults <- results(ddsAnalysis,
+                        contrast = c(variable, numerator, denominator)) 
+}
+
+#mcols(ddsResults)
+
+GenerateDESeqResultsTable <- function(physeq, ddsResults) {
+  # Returns data frame
+  # From the DESeq results generated by GenerateDESeqResults, create a
+  #   results data table that includes the taxonomy information and a column
+  #   indicating whether results for each taxon are significant.
+  
+  # Extract taxonomy table:
+  taxTable <- data.table(data.frame(as(tax_table(physeq), "matrix")),
+                         keep.rownames = TRUE)
+  setnames(taxTable, "rn", "OTU")
+  setkeyv(taxTable, "OTU")
+  
+  # Extract DESeq results as a data frame:
+  resDT <- data.table(as(ddsResults, "data.frame"),
+                      keep.rownames = TRUE)
+  
+  setnames(resDT, "rn", "OTU")
+  setkeyv(resDT, "OTU")
+  
+  # Combine taxonomy information with the results table:
+  resDT <- taxTable[resDT]
+  resDT <- resDT %>%
+    filter(padj != "NA") %>%
+    mutate(Significant = padj < 0.05)
+}
+
+PlotStaticVolcano <- function(physeq,
+                              resultsDataTable,
+                              alpha = 0.05,
+                              plotTitle = NULL) {
+  # Returns ggplot object from results data frame generated from
+  #   GenerateDESeqResultsTable()
+  
+  # Create volcano plot object
+  volcano <- ggplot(resultsDataTable,
+                    aes(x = log2FoldChange,
+                        y = -log10(padj),
+                        label1 = Genus,
+                        label2 = Species)) +
+    geom_point(data = subset(resultsDataTable,
+                             resultsDataTable$Significant == FALSE),
+               color = "grey") +
+    geom_point(data = subset(resultsDataTable,
+                             resultsDataTable$Significant == TRUE),
+               aes(color = Phylum, size = baseMean)) +
+    geom_vline(xintercept = 0, lty = 2) +
+    geom_hline(yintercept = -log10(alpha)) +
+    ggtitle(plotTitle) +
+    theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5),
+          axis.text.x = element_text(angle = -90, hjust = 0, vjust = 0.5),
+          axis.title = element_text(size = 12),
+          axis.text = element_text(size = 12),
+          legend.text = element_text(size = 12))
+}
+
+## Example Usage ##
+
+#resultsDESeq <- GenerateDESeqResults(physeq = physeqBacteria,
+#                                     variable = "Condition",
+#                                     numerator = "HHC",
+#                                     denominator = "CRPS")
+
+
+#resTable <- GenerateDESeqResultsTable(physeq = physeqBacteria,
+#                                      ddsResults = resultsDESeq)
+
+
+#volcano <- PlotStaticVolcano(physeq = physeqBacteria,
+#                             resultsDataTable = resTable,
+#                             plotTitle = "Differentially Abundant Taxa \nHHC Relative to CRPS")
+
+#ggplotly(volcano, tooltip = c("Phylum", "Genus", "Species",
+#                              "log2FoldChange", "baseMean"))
