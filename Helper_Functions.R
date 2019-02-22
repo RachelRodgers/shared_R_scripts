@@ -15,6 +15,36 @@ cbPaletteBlack <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#007
 
 #---------------------------------#
 
+MakeBoxPlot <- function(df, 
+                        xVar, 
+                        yVar, 
+                        label_y = NULL, 
+                        label_x = NULL, 
+                        statMethod = NULL) {
+  # Generate the base plot w/o stat_compare_means
+  basePlot <- ggplot(data = df,
+                     aes_string(x = xVar,
+                                y = yVar)) +
+    geom_boxplot(outlier.shape = NA) +
+    geom_jitter(width = 0.2) +
+    ylab(label_y) +
+    xlab(label_x) +
+    theme_pubr() +
+    theme(axis.title.y = element_text(size = 20),
+          axis.title.x = element_text(size = 20),
+          axis.text.x = element_text(angle = 45, hjust = 1, size = 18),
+          axis.text.y = element_text(size = 18))
+  # Do we need to add stat_compare_means?
+  if (is.null(statMethod)) {
+    return(basePlot)
+  } else {
+    basePlot +
+      stat_compare_means(method = statMethod, label.x.npc = 0.5)
+  }
+}
+
+#---------------------------------#
+
 MakeOrdinationPlot <- function(physeqObj, 
                                ordObj, 
                                colorValues,
