@@ -287,7 +287,8 @@ TaxRankPrevalence <- function(physeq, taxRank = "Phylum") {
   #   number of samples in which that taxon is present, and the total number of samples
   #   in which that taxon is present.
   taxaPrevalence_table <- plyr::ddply(prevalence_df,
-                                      "Phylum",
+                                      taxRank,
+                                      #"Phylum",
                                       function(df1) {
                                         cbind("Avg_Prevalence" = mean(df1$Prevalence), 
                                               "Total_Prevalence" = sum(df1$Prevalence))
@@ -469,8 +470,9 @@ PlotStaticVolcano <- function(physeq,
   volcano <- ggplot(resultsDataTable,
                     aes(x = log2FoldChange,
                         y = -log10(padj),
-                        label1 = Genus,
-                        label2 = Species)) +
+                        label1 = Family,
+                        label2 = Genus,
+                        label3 = Species)) +
     geom_point(data = subset(resultsDataTable,
                              resultsDataTable$Significant == FALSE),
                color = "grey") +
