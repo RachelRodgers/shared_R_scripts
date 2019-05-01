@@ -227,14 +227,14 @@ GenerateReadSummary <- function(physeq) {
   # Returns:
   #   List holding readsPerType, readsPerSample, and readDistributionSummary
   
-  # readsPerType contains RSVs and Sample names for row names, an nreads column
+  # readsPerType contains ASVs and Sample names for row names, an nreads column
   # for the total number of reads, a sorted column used as an identifier, and
   # a type column designating if the row is an RSV or a Sample.
   # Total reads per RSV:
   readsPerType <- data.frame(nreads = sort(taxa_sums(physeq),
                                            decreasing = TRUE),
                              sorted = 1:ntaxa(physeq),
-                             type = "RSVs")
+                             type = "ASVs")
   # Add total reads per sample:
   readsPerType <- rbind(readsPerType,
                         data.frame(nreads = sort(sample_sums(physeq),
