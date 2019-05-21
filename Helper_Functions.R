@@ -106,32 +106,53 @@ PlotPhylaPrevalence <- function(prevDF, physeqObj, myTitle = NULL,
 }
 #---------------------------------#
 
-PlotCommunityComposition <- function(abdDF, taxRank, myTitle = NULL, 
-                                     mySubtitle = NULL, labelVec = NULL,
+PlotCommunityComposition <- function(abdDF, taxRank = "Phylum",
                                      facetFormula = NULL,
-                                     facetCol = NULL, facetRow = NULL , 
-                                     legPos = "right") {
-  basePlot <- ggplot(df,
-                     aes_string(x = "Sample",
-                                y = "Abundance",
+                                     facetCol = NULL, facetRow = NULL) {
+  basePlot <- ggplot(abdDF,
+                     aes_string(x = "Sample", y = "Abundance", 
                                 fill = taxRank)) +
     geom_bar(stat = "identity", width = 1, color = "grey14") +
-    ggtitle(myTitle,
-            subtitle = mySubtitle) +
-    theme(axis.title.x = element_blank(),
-          axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
-  plot.title = element_text(hjust = 0.5),
-  plot.subtitle = element_text(hjust = 0.5),
-  legend.position = legPos) +
-  scale_x_discrete(labels = labelVec)
-
-  # Do we need to facet_wrap?
-  if(is.null(facetFormula) == TRUE) {
-    return(basePlot)
-  } else {
+    theme(axis.text.x = element_blank(),
+          axis.title.x = element_blank(),
+          plot.title = element_text(hjust = 0.5),
+          plot.subtitle = element_text(hjust = 0.5))
+  # are there facets??
+  if (!(is.null(facetFormula))) {
     formula <- as.formula(facetFormula)
-    basePlot + facet_wrap(formula, scales = "free", 
-                          nrow = facetRow, ncol = facetCol) 
+    facetPlot <- basePlot +
+      facet_wrap(formula, scales = "free", nrow = facetRow, ncol = facetCol)
+    return(facetPlot)
+  } else {
+    return(basePlot)
+  }
+  
+}
+#---------------------------------#
+
+PlotAlphaDiversity <- function(df, xVar, yVar, yLabel,
+                               statMethod = method,
+                               facetFormula = NULL,
+                               facetCol = NULL,
+                               facetRow = NULL) {
+  basePlot <- ggplot(df, aes_string(x = xVar, yVar)) +
+    geom_boxplot(outlier.shape = NA) +
+    geom_jitter(width = 0.2) +
+    ylab(yLabel) +
+    ggtitle(yLabel) +
+    theme_pubr() +
+    theme(plot.title = element_text(hjust = 0.5),
+          axis.text.x = element_text(angle = 45, hjust = 1),
+          axis.title.x = element_blank()) +
+    stat_compare_means(method = statMethod, label.x.npc = 0.5)
+  # are there facets?
+  if (!(is.null(facetFormula))) {
+    formula <- as.formula(facetFormula)
+    facetPlot <- basePlot +
+      facet_wrap(formula, ncol = facetCol, nrow = facetRow)
+    return(facetPlot)
+  } else {
+    return(basePlot)
   }
 }
 
