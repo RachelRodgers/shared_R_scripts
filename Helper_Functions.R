@@ -142,7 +142,7 @@ PlotAlphaDiversity <- function(df, xVar, yVar, yLabel,
     geom_jitter(width = 0.2) +
     ylab(yLabel) +
     ggtitle(alphaPlotTitle,
-            subtitle = NULL) +
+            subtitle = alphaPlotSubtitle) +
     theme_pubr() +
     theme(plot.title = element_text(hjust = 0.5),
           plot.subtitle = element_text(hjust = 0.5),
