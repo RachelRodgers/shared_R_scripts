@@ -132,6 +132,8 @@ PlotCommunityComposition <- function(abdDF, taxRank = "Phylum",
 
 PlotAlphaDiversity <- function(df, xVar, yVar, yLabel,
                                statMethod = method,
+                               alphaPlotTitle = NULL,
+                               alphaPlotSubtitle = NULL,
                                facetFormula = NULL,
                                facetCol = NULL,
                                facetRow = NULL) {
@@ -139,9 +141,11 @@ PlotAlphaDiversity <- function(df, xVar, yVar, yLabel,
     geom_boxplot(outlier.shape = NA) +
     geom_jitter(width = 0.2) +
     ylab(yLabel) +
-    ggtitle(yLabel) +
+    ggtitle(alphaPlotTitle,
+            subtitle = NULL) +
     theme_pubr() +
     theme(plot.title = element_text(hjust = 0.5),
+          plot.subtitle = element_text(hjust = 0.5),
           axis.text.x = element_text(angle = 45, hjust = 1),
           axis.title.x = element_blank()) +
     stat_compare_means(method = statMethod, label.x.npc = 0.5)
