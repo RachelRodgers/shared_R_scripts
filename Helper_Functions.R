@@ -131,7 +131,7 @@ PlotCommunityComposition <- function(abdDF, taxRank = "Phylum",
 #---------------------------------#
 
 PlotAlphaDiversity <- function(df, xVar, yVar, yLabel,
-                               statMethod = method,
+                               statMethod = NULL,
                                alphaPlotTitle = NULL,
                                alphaPlotSubtitle = NULL,
                                facetFormula = NULL,
