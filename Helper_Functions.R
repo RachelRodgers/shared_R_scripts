@@ -148,7 +148,7 @@ PlotAlphaDiversity <- function(df, xVar, yVar, yLabel,
           plot.subtitle = element_text(hjust = 0.5),
           axis.text.x = element_text(angle = 45, hjust = 1),
           axis.title.x = element_blank()) +
-    stat_compare_means(method = statMethod, label.x.npc = 0.5)
+    stat_compare_means(method = statMethod, label.x.npc = 0.5, size = 4)
   # are there facets?
   if (!(is.null(facetFormula))) {
     formula <- as.formula(facetFormula)
