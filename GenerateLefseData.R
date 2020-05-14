@@ -82,10 +82,10 @@ GenerateLefseData <- function(physeqObject, transformCountsToRA = TRUE,
 }
 
 # Test data
-myPhyseq <- readRDS("./physeqEpg5KOvWT.RDS")
+#myPhyseq <- readRDS("./physeqEpg5KOvWT.RDS")
 
 # Check which columns we need for the lefse data
-sample_variables(myPhyseq)
+#sample_variables(myPhyseq)
 
 # We will need the SampleName column (contains the sample identifiers) and the
 #   Genotype column which contains our variables of interest (tells us whether
@@ -93,11 +93,11 @@ sample_variables(myPhyseq)
 
 # Note: lefse can normalize the counts on its own, so you could set the transformCountsToRA parameter to FALSE
 
-lefseData <- GenerateLefseData(physeqObject = myPhyseq,
-                               transformCountsToRA = TRUE,
-                               categoryColumnName = "Genotype", 
-                               sampleColumnName = "SampleName")
+#lefseData <- GenerateLefseData(physeqObject = myPhyseq,
+                               #transformCountsToRA = TRUE,
+                               #categoryColumnName = "Genotype", 
+                               #sampleColumnName = "SampleName")
 
 # Save the lefse data
-write.table(x = lefseData, file = "lefseData_RelAbd.txt", 
-            quote = FALSE, sep = "\t", col.names = FALSE)
+#write.table(x = lefseData, file = "lefseData_RelAbd.txt", 
+            #quote = FALSE, sep = "\t", col.names = FALSE)
