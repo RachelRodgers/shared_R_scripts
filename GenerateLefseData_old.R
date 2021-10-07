@@ -37,37 +37,21 @@ GenerateLefseData <- function(physeqObject, transformCountsToRA = TRUE,
   lefseCounts <- t(lefseCounts) # samples become rownames
   
   # Add taxonomy to lefseCounts
-  # Remove trailing NAs in the FullTax column, collapse counts (lineage sum)
-  # Also ensure that if lineage is named to species level, to change the species
-  #   column to `Genus Species` so LEfSe results are easier to interpret.
   lefseCountsTax <- cbind(as.matrix(tax_table(physeqObject)[rownames(lefseCounts), ]), 
                           lefseCounts)
   lefseCountsTaxDF <- data.frame(lefseCountsTax, check.names = FALSE)
   lefseCountsTaxDF <- mutate(lefseCountsTaxDF, 
-                             Species = ifelse(!is.na(Species),
-                                              yes = paste(Genus, Species, sep = "_"),
-                                              no = Species), 
                              "FullTax" = paste(Kingdom, Phylum, Class,
                                                Order, Family, Genus, Species, 
-                                               sep = "|"),
-                             "ShortTax" = str_remove(FullTax, "(\\|NA)+"))
+                                               sep = "|"))
   # Rearrange
   lefseCountsTaxDF <- lefseCountsTaxDF %>%
-    dplyr::select(-c(Kingdom, Phylum, Class, Order, Family, Genus, Species,
-                     FullTax)) %>%
-    dplyr::select(ShortTax, everything()) %>% 
-    group_by(ShortTax) %>% 
-    mutate_if(is.factor, as.character) %>% 
-    mutate_if(is.character, as.numeric) %>% 
-    summarise(across(where(is.numeric), ~ sum(as.numeric(.))))
-  
+    dplyr::select(-c(Kingdom, Phylum, Class, Order, Family, Genus, Species)) %>%
+    dplyr::select(FullTax, everything())
   # Transform back around so we can merge later
   lefseCountsTaxDF <- t(lefseCountsTaxDF)
   colnames(lefseCountsTaxDF) <- lefseCountsTaxDF[1, ]
-  lefseCountsTaxDF <- lefseCountsTaxDF[-1, ] %>% 
-    as.data.frame() %>% 
-    mutate_if(is.factor, as.character) %>% 
-    mutate_if(is.character, as.numeric)
+  lefseCountsTaxDF <- lefseCountsTaxDF[-1, ]
   
   # Get the sample data with the metadata variables of choice
   lefseSampData <- data.frame(sample_data(physeqObject))
@@ -97,3 +81,23 @@ GenerateLefseData <- function(physeqObject, transformCountsToRA = TRUE,
   return(lefseInput)
 }
 
+# Test data
+#myPhyseq <- readRDS("./physeqEpg5KOvWT.RDS")
+
+# Check which columns we need for the lefse data
+#sample_variables(myPhyseq)
+
+# We will need the SampleName column (contains the sample identifiers) and the
+#   Genotype column which contains our variables of interest (tells us whether
+#   a sample is of genotype KO or WT).
+
+# Note: lefse can normalize the counts on its own, so you could set the transformCountsToRA parameter to FALSE
+
+#lefseData <- GenerateLefseData(physeqObject = myPhyseq,
+                               #transformCountsToRA = TRUE,
+                               #categoryColumnName = "Genotype", 
+                               #sampleColumnName = "SampleName")
+
+# Save the lefse data
+#write.table(x = lefseData, file = "lefseData_RelAbd.txt", 
+            #quote = FALSE, sep = "\t", col.names = FALSE)
