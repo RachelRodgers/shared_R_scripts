@@ -13,154 +13,7 @@ cbPaletteBlack <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#007
 # For line and point colors use
 #   scale_colour_manual(values = cbPalleteGrey)
 
-#---------------------------------#
-
-MakeBoxPlot <- function(df, 
-                        xVar, 
-                        yVar, 
-                        label_y = NULL, 
-                        label_x = NULL, 
-                        statMethod = NULL) {
-  # Generate the base plot w/o stat_compare_means
-  basePlot <- ggplot(data = df,
-                     aes_string(x = xVar,
-                                y = yVar)) +
-    geom_boxplot(outlier.shape = NA) +
-    geom_jitter(width = 0.2) +
-    ylab(label_y) +
-    xlab(label_x) +
-    theme_pubr() +
-    theme(axis.title.y = element_text(size = 20),
-          axis.title.x = element_text(size = 20),
-          axis.text.x = element_text(angle = 45, hjust = 1, size = 18),
-          axis.text.y = element_text(size = 18))
-  # Do we need to add stat_compare_means?
-  if (is.null(statMethod)) {
-    return(basePlot)
-  } else {
-    basePlot +
-      stat_compare_means(method = statMethod, label.x.npc = 0.5)
-  }
-}
-
-#---------------------------------#
-
-MakeOrdinationPlot <- function(physeqObj, 
-                               ordObj, 
-                               colorValues,
-                               pointSize = 3.5,
-                               shapeValues = NULL,
-                               labelColumn = NA,
-                               labelSize = 2.5,
-                               labelColor = "gray30",
-                               shapeVar = NULL, 
-                               colorVar = NULL,
-                               axesVec = c(1,2),
-                               myTitle = NULL,
-                               mySubtitle = NULL) {
-  
-  plot_ordination(physeq = physeqObj,
-                  ordination = ordObj,
-                  shape = shapeVar,
-                  color = colorVar,
-                  axes = axesVec) +
-    theme_bw() +
-    geom_point(size = pointSize) +
-    scale_color_manual(values = colorValues) +
-    scale_shape_manual(values = shapeValues) +
-    ggtitle(myTitle,
-            subtitle = mySubtitle) +
-    theme(plot.title = element_text(hjust = 0.5),
-          plot.subtitle = element_text(hjust = 0.5)) +
-    geom_text_repel(aes_string(label = labelColumn),
-                    size = labelSize,
-                    color = labelColor)
-}
-
-#---------------------------------#
-
-PlotPhylaPrevalence <- function(prevDF, physeqObj, myTitle = NULL, 
-                                mySubtitle = NULL,intercept_y = 0.05, 
-                                legendPos = "none") {
-  # Calculate total number of samples in the physeqObj
-  totalSamples <- nsamples(physeqObj)
-  # Add RelativePrev column in prevDF that holds the relative prevalence value
-  prevDFMut <- mutate(prevDF, 
-                      RelativePrev = prevDF$Prevalence/totalSamples)
-  # Generate plot
-  ggplot(prevDFMut,
-         aes_string(x = "TotalAbundance",
-                    y = "RelativePrev",
-                    color = "Family")) +
-    geom_hline(yintercept = intercept_y, alpha = 0.5,linetype = 2) +
-    geom_point(size = 3, alpha = 0.7) +
-    scale_x_log10() +
-    facet_wrap(~Phylum) +
-    xlab("Total Abundance") +
-    ylab("Prevalence [Frac. Samples]") +
-    ggtitle(myTitle,
-            subtitle = mySubtitle) +
-    theme(plot.title = element_text(hjust = 0.5),
-          plot.subtitle = element_text(hjust = 0.5),
-          legend.position = legendPos)
-}
-#---------------------------------#
-
-PlotCommunityComposition <- function(abdDF, taxRank = "Phylum",
-                                     facetFormula = NULL,
-                                     facetCol = NULL, facetRow = NULL) {
-  basePlot <- ggplot(abdDF,
-                     aes_string(x = "Sample", y = "Abundance", 
-                                fill = taxRank)) +
-    geom_bar(stat = "identity", width = 1, color = "grey14") +
-    theme(axis.text.x = element_blank(),
-          axis.title.x = element_blank(),
-          plot.title = element_text(hjust = 0.5),
-          plot.subtitle = element_text(hjust = 0.5))
-  # are there facets??
-  if (!(is.null(facetFormula))) {
-    formula <- as.formula(facetFormula)
-    facetPlot <- basePlot +
-      facet_wrap(formula, scales = "free", nrow = facetRow, ncol = facetCol)
-    return(facetPlot)
-  } else {
-    return(basePlot)
-  }
-  
-}
-#---------------------------------#
-
-PlotAlphaDiversity <- function(df, xVar, yVar, yLabel,
-                               statMethod = NULL,
-                               alphaPlotTitle = NULL,
-                               alphaPlotSubtitle = NULL,
-                               facetFormula = NULL,
-                               facetCol = NULL,
-                               facetRow = NULL) {
-  basePlot <- ggplot(df, aes_string(x = xVar, yVar)) +
-    geom_boxplot(outlier.shape = NA) +
-    geom_jitter(width = 0.2) +
-    ylab(yLabel) +
-    ggtitle(alphaPlotTitle,
-            subtitle = alphaPlotSubtitle) +
-    theme_pubr() +
-    theme(plot.title = element_text(hjust = 0.5),
-          plot.subtitle = element_text(hjust = 0.5),
-          axis.text.x = element_text(angle = 45, hjust = 1),
-          axis.title.x = element_blank()) +
-    stat_compare_means(method = statMethod, label.x.npc = 0.5, size = 4)
-  # are there facets?
-  if (!(is.null(facetFormula))) {
-    formula <- as.formula(facetFormula)
-    facetPlot <- basePlot +
-      facet_wrap(formula, ncol = facetCol, nrow = facetRow)
-    return(facetPlot)
-  } else {
-    return(basePlot)
-  }
-}
-
-#---------------------------------#
+#----- Statistical Functions -----#
 
 # Function to run adonis test on a physeq object and a variable from metadata 
 RunAdonis <- function(physeqObj, category, distance) {
@@ -171,7 +24,7 @@ RunAdonis <- function(physeqObj, category, distance) {
   return(adonis.bdist)
 }
 
-#---------------------------------#
+#----- Common Tasks Code -----#
 
 CheckPhyloseqObject <- function(phyloseqObject, taxRank = "Phylum") {
   # Performs sanity checks on a phyloseq object.
@@ -223,22 +76,6 @@ CheckPhyloseqObject <- function(phyloseqObject, taxRank = "Phylum") {
   
 }
 
-#---------------------------------#
-
-RemoveMissingTaxa <- function(physeq) {
-  # Removes any taxa that are missing (have a taxa sum of 0) from a physeq object
-  # Error handling
-  # Check that a phyloseq object has been passed in
-  if ((class(physeq)) != "phyloseq") {
-    stop("Please check that you called this function on an object of type 
-         \"phyloseq.\"")
-  }
-  
-  physeq <- prune_taxa(taxa_sums(physeq) > 0, physeq)
-}
-
-#---------------------------------#
-
 # For pre-processing based on read distributions.
 GenerateReadSummary <- function(physeq) {
   # Creates a data frames that summarize the total number of reads per RSVs and 
@@ -276,23 +113,45 @@ GenerateReadSummary <- function(physeq) {
                       "readDistributionSummary" = readDistributionSummary)
 }
 
-#---------------------------------#
-
-# For community composition plotting.
-MakeAbundanceDF <- function(physeq, 
-                            taxRank, 
-                            abundanceFilter = 0.01,
-                            pruneMissing = FALSE) {
-  # Creates an abundance data frame at a given taxonomic rank for a phyloseq object
-  # for abundance bar plots
-  abundance.df <- physeq %>%
-    tax_glom(taxrank = taxRank, NArm = pruneMissing) %>%
-    transform_sample_counts(function(x) {x/sum(x)}) %>%
-    psmelt() %>%
-    filter(Abundance > abundanceFilter)
+RemoveMissingTaxa <- function(physeq) {
+  # Removes any taxa that are missing (have a taxa sum of 0) from a physeq object
+  # Error handling
+  # Check that a phyloseq object has been passed in
+  if ((class(physeq)) != "phyloseq") {
+    stop("Please check that you called this function on an object of type 
+         \"phyloseq.\"")
+  }
+  
+  physeq <- prune_taxa(taxa_sums(physeq) > 0, physeq)
 }
 
-#---------------------------------#
+#----- Common QC Tasks -----#
+
+PlotPhylaPrevalence <- function(prevDF, physeqObj, myTitle = NULL, 
+                                mySubtitle = NULL,intercept_y = 0.05, 
+                                legendPos = "none") {
+  # Calculate total number of samples in the physeqObj
+  totalSamples <- nsamples(physeqObj)
+  # Add RelativePrev column in prevDF that holds the relative prevalence value
+  prevDFMut <- mutate(prevDF, 
+                      RelativePrev = prevDF$Prevalence/totalSamples)
+  # Generate plot
+  ggplot(prevDFMut,
+         aes_string(x = "TotalAbundance",
+                    y = "RelativePrev",
+                    color = "Family")) +
+    geom_hline(yintercept = intercept_y, alpha = 0.5,linetype = 2) +
+    geom_point(size = 3, alpha = 0.7) +
+    scale_x_log10() +
+    facet_wrap(~Phylum) +
+    xlab("Total Abundance") +
+    ylab("Prevalence [Frac. Samples]") +
+    ggtitle(myTitle,
+            subtitle = mySubtitle) +
+    theme(plot.title = element_text(hjust = 0.5),
+          plot.subtitle = element_text(hjust = 0.5),
+          legend.position = legendPos)
+}
 
 TaxRankPrevalence <- function(physeq, taxRank = "Phylum") {
   # Calculate prevalence of taxa at a given taxonomic rank for low prevalence taxon filtering.
@@ -322,216 +181,125 @@ TaxRankPrevalence <- function(physeq, taxRank = "Phylum") {
                             "prevalence_table" = taxaPrevalence_table)
 }
 
-#---------------------------------#
-# DESeq2 - specific functions (old):
-GetBiomarkers <- function(physeq, 
-                          groupVar,
-                          numerator, 
-                          denominator,
-                          alpha = 0.05) { 
-  # Create the DESeq significance table used for plotting.
-  # Returns a list of two objects - the DESeq2 results and the Significance Table (sigTable)
-  # Each component can be accessed with dollar sign ($) notation
-  
-  # Create formula from string variable
-  formula <- as.formula(paste("~", groupVar, sep = " "))
-  # Convert physeq object to DESeq Data Set object
-  dds <- phyloseq_to_deseq2(physeq = physeq, design = formula)
-  
-  # Run DESeq analysis
-  ddsAnalysis <- DESeq(dds, test = "Wald", fitType = "local", betaPrior = FALSE)
-  # Extract Results
-  ddsResults <- results(ddsAnalysis,
-                        contrast = c(groupVar, numerator, denominator),
-                        cooksCutoff = FALSE)
-  # Create table of significant results
-  ddsSignificantResults <- ddsResults[which(ddsResults$padj < alpha), ]
-  # Add taxonomy to the table
-  ddsSignificantResults <- cbind(as(ddsSignificantResults, "data.frame"),
-                                 as(tax_table(physeq)[rownames(ddsSignificantResults), ], "matrix"))
-  # Get the maximum log2FC for each Family, then sort in decreasing order
-  maxFC <- tapply(ddsSignificantResults$log2FoldChange,
-                  ddsSignificantResults$Family,
-                  function(x) max(x))
-  maxFC <- sort(maxFC, decreasing = TRUE)
-  # Change significance table Species column to Families, factorize the column and assign levels by decreasing max log2FC
-  ddsSignificantResults$Species <- factor(as.character(ddsSignificantResults$Family),
-                                          levels = names(maxFC))
-  biomarkerResults <- list("results" = ddsResults, "biomarkerTable" = ddsSignificantResults)
-  #return(ddsSignificantResults)
-  #biomarkerResults
+#----- Common 16S Analysis Tasks -----#
+
+# For community composition plotting.
+MakeAbundanceDF <- function(physeq, 
+                            taxRank, 
+                            abundanceFilter = 0.01,
+                            pruneMissing = FALSE) {
+  # Creates an abundance data frame at a given taxonomic rank for a phyloseq object
+  # for abundance bar plots
+  abundance.df <- physeq %>%
+    tax_glom(taxrank = taxRank, NArm = pruneMissing) %>%
+    transform_sample_counts(function(x) {x/sum(x)}) %>%
+    psmelt() %>%
+    filter(Abundance > abundanceFilter)
 }
 
-# Horizontal Biomarker Plot
 
-CreateBiomarkerPlot <- function(biomarkerTable) {
-  biomarkerPlot <- ggplot(data.frame(biomarkerTable),
-                          aes(x = Family,
-                              y = log2FoldChange,
-                              color = Genus)) +
-    geom_point(aes(size = log10(biomarkerTable$baseMean)), 
-               alpha = 0.7) +
-    geom_hline(yintercept = 0, lwd = 1.5) +
-    ggtitle("default plot title") +
-    theme_bw() +
+PlotCommunityComposition <- function(abdDF, taxRank = "Phylum",
+                                     facetFormula = NULL,
+                                     facetCol = NULL, facetRow = NULL) {
+  basePlot <- ggplot(abdDF,
+                     aes_string(x = "Sample", y = "Abundance", 
+                                fill = taxRank)) +
+    geom_bar(stat = "identity", width = 1, color = "grey14") +
+    theme(axis.text.x = element_blank(),
+          axis.title.x = element_blank(),
+          plot.title = element_text(hjust = 0.5),
+          plot.subtitle = element_text(hjust = 0.5))
+  # are there facets??
+  if (!(is.null(facetFormula))) {
+    formula <- as.formula(facetFormula)
+    facetPlot <- basePlot +
+      facet_wrap(formula, scales = "free", nrow = facetRow, ncol = facetCol)
+    return(facetPlot)
+  } else {
+    return(basePlot)
+  }
+  
+}
+
+PlotAlphaDiversity <- function(df, xVar, yVar, yLabel,
+                               statMethod = NULL,
+                               alphaPlotTitle = NULL,
+                               alphaPlotSubtitle = NULL,
+                               facetFormula = NULL,
+                               facetCol = NULL,
+                               facetRow = NULL) {
+  basePlot <- ggplot(df, aes_string(x = xVar, yVar)) +
+    geom_boxplot(outlier.shape = NA) +
+    geom_jitter(width = 0.2) +
+    ylab(yLabel) +
+    ggtitle(alphaPlotTitle,
+            subtitle = alphaPlotSubtitle) +
+    theme_pubr() +
     theme(plot.title = element_text(hjust = 0.5),
-          axis.text.x = element_text(angle = 315, hjust = 0)) +
-    labs(size = "log10(base mean)")
-  return(biomarkerPlot)
+          plot.subtitle = element_text(hjust = 0.5),
+          axis.text.x = element_text(angle = 45, hjust = 1),
+          axis.title.x = element_blank()) +
+    stat_compare_means(method = statMethod, label.x.npc = 0.5, size = 4)
+  # are there facets?
+  if (!(is.null(facetFormula))) {
+    formula <- as.formula(facetFormula)
+    facetPlot <- basePlot +
+      facet_wrap(formula, ncol = facetCol, nrow = facetRow)
+    return(facetPlot)
+  } else {
+    return(basePlot)
+  }
 }
 
-# Volcano Biomarker Plot
 
-CreateBiomarkerVolcano <- function(physeq, biomarkerResults, alpha = 0.05) {
-  # Set up
-  taxonomyTable <- data.table(data.frame(as(tax_table(physeq), "matrix")), 
-                              keep.rownames = TRUE)
-  setnames(taxonomyTable, "rn", "OTU")
-  setkeyv(taxonomyTable, "OTU")
-  
-  resultsDataTable <- data.table(as(biomarkerResults$results, "data.frame"),
-                                 keep.rownames = TRUE)
-  setnames(resultsDataTable, "rn", "OTU")
-  setkeyv(resultsDataTable, "OTU")
-  
-  resultsDataTable <- taxonomyTable[resultsDataTable]
-  resultsDataTable <- resultsDataTable %>%
-    filter(., padj != "NA") %>%
-    mutate(., Significant = padj <alpha)
-  
-  # Create volcano plot object
-  volcano <- ggplot(resultsDataTable,
-                    aes(x = log2FoldChange,
-                        y = -log10(padj))) +
-    geom_point(data = subset(resultsDataTable, resultsDataTable$Significant == FALSE), color = "grey") +
-    geom_point(data = subset(resultsDataTable, resultsDataTable$Significant == TRUE), 
-               aes(color = Phylum, size = baseMean)) +
-    geom_vline(xintercept = 0, lty = 2) +
-    geom_hline(yintercept = -log10(alpha)) +
-    ggtitle("default plot title") +
+#----- Ordination Tasks -----#
+
+EasyOrd <- function(physeqObj, ordObj, colorVals, pointSize = 1.5,
+                    shapeVar = NULL, colorVar = NULL, myTitle = NULL,
+                    mySubtitle = NULL, myLegendTitle = NULL) {
+  plot_ordination(physeq = physeqObj,
+                  ordination = ordObj,
+                  shape = shapeVar,
+                  color = colorVar) +
+    scale_color_manual(values = colorVals) +
+    labs(color = myLegendTitle) +
     theme_bw() +
-    theme(plot.title = element_text(hjust = 0.5),
-          axis.text.x = element_text(angle = -90, hjust = 0, vjust = 0.5),
-          axis.title = element_text(size = 12),
-          axis.text = element_text(size = 12),
-          legend.text = element_text(size = 12)) 
-  return(volcano)
+    geom_point(size = pointSize) +
+    ggtitle(myTitle, subtitle = mySubtitle) +
+    theme(plot.title = element_text(hjust = 0.5, size = 14),
+          plot.subtitle = element_text(hjust = 0.5, size = 12)) +
+    stat_ellipse(type = "norm")
 }
 
-## TEST ##
-# how to use the DESeq2 specific functions
-#
-# Physeq object: physeqWTDay21
-#
-# Get biomarker results and significance table from DESeq2 comparing the
-#   Treatment groups with No_Antibiotics as the numerator (top_), Antibiotics 
-#   as the denominator (bottom) of the Horizontal Biomarkers plot:
-# 
-# biomarkers_WTDay21_NoAbx_Abx <- GetBiomarkers(physeqWTDay21, 
-#                                              "Treatment", 
-#                                              "No_Antibiotics", "Antibiotics")
-# Create Horizontal plot
-# biomarkerPlot_WTDay21_NoAbx_Abx <- CreateBiomarkerPlot(biomarkers_WTDay21_NoAbx_Abx$biomarkerTable)
-# biomarkerPlot_WTDay21_NoAbx_Abx
-# 
-# Create volcano plot
-# biomarkerVolcano_WTDay21_NoAbx_Abx <- CreateBiomarkerVolcano(physeqWTDay21,
-#                                                             biomarkers_WTDay21_NoAbx_Abx)
-# biomarkerVolcano_WTDay21_NoAbx_Abx
 
-#---------------------------------#
-
-# Functions to quickly make interactive volcano plots:
-
-GenerateDESeqResults <- function(physeq, variable, numerator, denominator) {
-  # Returns DESeq Results as Formal Class "DESeqResults"
-  # Create formula from string variable
-  formula <- as.formula(paste("~", variable, sep = " "))
-  # Convert to deseq data set object
-  dds <- phyloseq_to_deseq2(physeq, design = formula)
-  # Run analysis
-  ddsAnalysis <- DESeq(dds, test = "Wald", fitType = "local", betaPrior = FALSE)
-  # Extract and format results
-  ddsResults <- results(ddsAnalysis,
-                        contrast = c(variable, numerator, denominator)) 
-}
-
-#mcols(ddsResults)
-
-GenerateDESeqResultsTable <- function(physeq, ddsResults, sigThreshold = 0.05) {
-  # Returns data frame
-  # From the DESeq results generated by GenerateDESeqResults, create a
-  #   results data table that includes the taxonomy information and a column
-  #   indicating whether results for each taxon are significant.
+MakeOrdinationPlot <- function(physeqObj, 
+                               ordObj, 
+                               colorValues,
+                               pointSize = 3.5,
+                               shapeValues = NULL,
+                               labelColumn = NA,
+                               labelSize = 2.5,
+                               labelColor = "gray30",
+                               shapeVar = NULL, 
+                               colorVar = NULL,
+                               axesVec = c(1,2),
+                               myTitle = NULL,
+                               mySubtitle = NULL) {
   
-  # Extract taxonomy table:
-  taxTable <- data.table(data.frame(as(tax_table(physeq), "matrix")),
-                         keep.rownames = TRUE)
-  setnames(taxTable, "rn", "OTU")
-  setkeyv(taxTable, "OTU")
-  
-  # Extract DESeq results as a data frame:
-  resDT <- data.table(as(ddsResults, "data.frame"),
-                      keep.rownames = TRUE)
-  
-  setnames(resDT, "rn", "OTU")
-  setkeyv(resDT, "OTU")
-  
-  # Combine taxonomy information with the results table:
-  resDT <- taxTable[resDT]
-  resDT <- resDT %>%
-    filter(padj != "NA") %>%
-    mutate(Significant = padj < sigThreshold)
-}
-
-PlotStaticVolcano <- function(physeq,
-                              resultsDataTable,
-                              sigThreshold, # usually 0.05 (match sigThreshold in GenerateDESeqResultsTable())
-                              plotTitle = NULL) {
-  # Returns ggplot object from results data frame generated from
-  #   GenerateDESeqResultsTable()
-  
-  # Create volcano plot object
-  volcano <- ggplot(resultsDataTable,
-                    aes(x = log2FoldChange,
-                        y = -log10(padj),
-                        label1 = Family,
-                        label2 = Genus,
-                        label3 = Species)) +
-    geom_point(data = subset(resultsDataTable,
-                             resultsDataTable$Significant == FALSE),
-               color = "grey") +
-    geom_point(data = subset(resultsDataTable,
-                             resultsDataTable$Significant == TRUE),
-               aes(color = Phylum, size = baseMean)) +
-    geom_vline(xintercept = 0, lty = 2) +
-    geom_hline(yintercept = -log10(sigThreshold)) +
-    ggtitle(plotTitle) +
+  plot_ordination(physeq = physeqObj,
+                  ordination = ordObj,
+                  shape = shapeVar,
+                  color = colorVar,
+                  axes = axesVec) +
     theme_bw() +
+    geom_point(size = pointSize) +
+    scale_color_manual(values = colorValues) +
+    scale_shape_manual(values = shapeValues) +
+    ggtitle(myTitle,
+            subtitle = mySubtitle) +
     theme(plot.title = element_text(hjust = 0.5),
-          axis.text.x = element_text(angle = -90, hjust = 0, vjust = 0.5),
-          axis.title = element_text(size = 12),
-          axis.text = element_text(size = 12),
-          legend.text = element_text(size = 12))
+          plot.subtitle = element_text(hjust = 0.5)) +
+    geom_text_repel(aes_string(label = labelColumn),
+                    size = labelSize,
+                    color = labelColor)
 }
-
-## Example Usage ##
-
-#resultsDESeq <- GenerateDESeqResults(physeq = physeqBacteria,
-#                                     variable = "Condition",
-#                                     numerator = "HHC",
-#                                     denominator = "CRPS")
-
-
-#resTable <- GenerateDESeqResultsTable(physeq = physeqBacteria,
-#                                      ddsResults = resultsDESeq)
-
-
-#volcano <- PlotStaticVolcano(physeq = physeqBacteria,
-#                             resultsDataTable = resTable,
-#                             plotTitle = "Differentially Abundant Taxa \nHHC Relative to CRPS")
-
-#ggplotly(volcano, tooltip = c("Phylum", "Genus", "Species",
-#                              "log2FoldChange", "baseMean"))
-
-#---------------------------------#
