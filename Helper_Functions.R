@@ -156,8 +156,8 @@ PlotPhylaPrevalence <- function(prevDF, physeqObj, myTitle = NULL,
 TaxRankPrevalence <- function(physeq, taxRank = "Phylum") {
   # Calculate prevalence of taxa at a given taxonomic rank for low prevalence taxon filtering.
   # Create a named vector where each element name is an OTU sequeunce, and each value
-  #   is the number of sequences in which that OTU is present (max value is the total
-  #   number of sequences).
+  #   is the number of samples in which that OTU is present (max value is the total
+  #   number of samples in the physeq object).
   prevalence_vector <- apply(X = otu_table(physeq),
                              MARGIN = ifelse(taxa_are_rows(physeq), yes = 1, no =2),
                              FUN = function(x) {sum(x > 0)})
