@@ -20,7 +20,7 @@ RunAdonis <- function(physeqObj, category, distance) {
   bdist <- phyloseq::distance(physeqObj, distance)
   col <- as(sample_data(physeqObj), "data.frame")[, category]
   # Adonis test
-  adonis.bdist <- adonis(bdist ~ col)
+  adonis.bdist <- adonis2(bdist ~ col)
   return(adonis.bdist)
 }
 
