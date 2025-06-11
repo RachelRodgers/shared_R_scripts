@@ -222,6 +222,7 @@ PlotCommunityComposition <- function(abdDF, taxRank = "Phylum",
 }
 
 PlotAlphaDiversity <- function(df, xVar, yVar, yLabel,
+                               colorVals = NULL,
                                statMethod = NULL,
                                alphaPlotTitle = NULL,
                                alphaPlotSubtitle = NULL,
@@ -231,6 +232,7 @@ PlotAlphaDiversity <- function(df, xVar, yVar, yLabel,
   basePlot <- ggplot(df, aes_string(x = xVar, yVar)) +
     geom_boxplot(outlier.shape = NA) +
     geom_jitter(width = 0.2) +
+    scale_fill_manual(values = colorVals) +
     ylab(yLabel) +
     ggtitle(alphaPlotTitle,
             subtitle = alphaPlotSubtitle) +
