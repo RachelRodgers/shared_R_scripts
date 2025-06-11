@@ -229,7 +229,7 @@ PlotAlphaDiversity <- function(df, xVar, yVar, yLabel,
                                facetFormula = NULL,
                                facetCol = NULL,
                                facetRow = NULL) {
-  basePlot <- ggplot(df, aes_string(x = xVar, yVar)) +
+  basePlot <- ggplot(df, aes_string(x = xVar, yVar, fill = xVar)) +
     geom_boxplot(outlier.shape = NA) +
     geom_jitter(width = 0.2) +
     scale_fill_manual(values = colorVals) +
